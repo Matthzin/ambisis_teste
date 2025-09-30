@@ -10,6 +10,37 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id          String    @id @default(uuid())
+  razaoSocial String    @map("razao_social") @db.VarChar(255)
+  cnpj        String    @unique @db.Char(14)
+  cep         String    @db.Char(8)
+  cidade      String    @db.VarChar(255)
+  estado      String    @db.VarChar(255)
+  bairro      String    @db.VarChar(255)
+  complemento String?   @db.VarChar(255)
+  licencas    Licenca[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("empresa")
+}
+
+model Licenca {
+  id             String   @id @default(uuid())
+  empresa        Empresa  @relation(fields: [empresaId], references: [id])
+  empresaId      String   @map("empresa_id")
+  numero         String   @unique
+  orgaoAmbiental String   @map("orgao_ambiental") @db.VarChar(255)
+  emissao        DateTime @db.Date
+  validade       DateTime @db.Date
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([empresaId], name: "idx_empresa_id")
+  @@map("licenca")
 }
