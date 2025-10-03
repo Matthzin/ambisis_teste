@@ -10,5 +10,10 @@ export async function GET(_request: Request, { params }: { params: Params }) {
   const license = await prisma.licenca.findUnique({
     where: { id: String(id) },
   });
-  return NextResponse.json(license);
+
+  if (!license) {
+    return NextResponse.json({ message: "License not found" }, { status: 404 });
+  }
+
+  return NextResponse.json(license, { status: 200 });
 }
