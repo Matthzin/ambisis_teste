@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/Modal";
 
-interface EmpresaForm {
+interface CompanyForm {
   razaoSocial: string;
   cnpj: string;
   cep: string;
@@ -16,7 +16,7 @@ interface EmpresaForm {
 
 export default function NewCompany() {
   const router = useRouter();
-  const [form, setForm] = useState<EmpresaForm>({
+  const [form, setForm] = useState<CompanyForm>({
     razaoSocial: "",
     cnpj: "",
     cep: "",
@@ -190,8 +190,8 @@ export default function NewCompany() {
         onClose={() => setConfirmModalOpen(false)}
       >
         <div className="p-4">
-          <p className="text-lg mb-4 text-center">Empresa cadastrada com sucesso!</p>
-          <div className="flex justify-center">
+          <p className="text-lg text-center">Empresa cadastrada com sucesso!</p>
+          <div className="flex justify-center mt-4">
             <button
               onClick={() => router.push("/")}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

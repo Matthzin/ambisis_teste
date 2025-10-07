@@ -4,74 +4,58 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Modal from "@/components/Modal";
 
-interface CompanyForm {
-  razaoSocial: string;
-  cnpj: string;
-  cep: string;
-  cidade: string;
-  estado: string;
-  bairro: string;
-  complemento: string;
+interface LicenseForm {
+  numero: string;
+  orgaoAmbiental: string;
+  emissao: string;
+  validade: string;
 }
 
-export default function EditCompany() {
+export default function EditLicense() {
   const router = useRouter();
   const params = useParams();
-  const id = params?.id as string;
+  const licenseId = params.id;
 
-  const [form, setForm] = useState<CompanyForm>({
-    razaoSocial: "",
-    cnpj: "",
-    cep: "",
-    cidade: "",
-    estado: "",
-    bairro: "",
-    complemento: "",
+  const [form, setForm] = useState<LicenseForm>({
+    numero: "",
+    orgaoAmbiental: "",
+    emissao: "",
+    validade: "",
   });
 
-  const [loading, setLoading] = useState(true);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const [redirectAfterClose, setRedirectAfterClose] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
-    async function fetchCompany() {
+    async function fetchLicense() {
       try {
-        const res = await fetch(`/api/companies/${id}`);
-        if (!res.ok) throw new Error("Erro ao carregar empresa");
-        const data = await res.json();
-        setForm({
-          razaoSocial: data.razaoSocial,
-          cnpj: data.cnpj,
-          cep: data.cep,
-          cidade: data.cidade,
-          estado: data.estado,
-          bairro: data.bairro,
-          complemento: data.complemento ?? "",
-        });
+        const res = await fetch(`/api/licenses/${licenseId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setForm({
+            numero: data.numero,
+            orgaoAmbiental: data.orgaoAmbiental,
+            emissao: data.emissao
+              ? new Date(data.emissao).toISOString().split("T")[0]
+              : "",
+            validade: data.validade
+              ? new Date(data.validade).toISOString().split("T")[0]
+              : "",
+          });
+        } else {
+          const error = await res.json();
+          setMessage(`Erro ao carregar licença: ${error.message}`);
+          setMessageModalOpen(true);
+        }
       } catch (error) {
         console.error(error);
-        setMessage("Erro ao carregar os dados da empresa.");
-        setRedirectAfterClose(true);
+        setMessage("Erro ao carregar licença.");
         setMessageModalOpen(true);
-      } finally {
-        setLoading(false);
       }
     }
-
-    fetchCompany();
-  }, [id]);
-
-  const handleCnpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
-    value = value.replace(/^(\d{2})(\d)/, "$1.$2");
-    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    value = value.replace(/\.(\d{3})(\d)/, ".$1/$2");
-    value = value.replace(/(\d{4})(\d)/, "$1-$2");
-    setForm({ ...form, cnpj: value });
-  };
+    fetchLicense();
+  }, [licenseId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -84,24 +68,21 @@ export default function EditCompany() {
 
   const confirmEdit = async () => {
     try {
-      const res = await fetch(`/api/companies/${id}`, {
+      const res = await fetch(`/api/licenses/${licenseId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
       if (res.ok) {
-        setMessage("Empresa atualizada com sucesso!");
-        setRedirectAfterClose(true);
+        setMessage("Licença atualizada com sucesso!");
       } else {
         const error = await res.json();
         setMessage(`Erro: ${error.message}`);
-        setRedirectAfterClose(false);
       }
     } catch (error) {
       console.error(error);
-      setMessage("Erro ao atualizar empresa.");
-      setRedirectAfterClose(false);
+      setMessage("Erro ao atualizar licença.");
     } finally {
       setConfirmModalOpen(false);
       setMessageModalOpen(true);
@@ -110,27 +91,25 @@ export default function EditCompany() {
 
   const closeMessageModal = () => {
     setMessageModalOpen(false);
-    if (redirectAfterClose) {
+    if (message === "Licença atualizada com sucesso!") {
       router.push("/");
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Carregando...</p>;
-
   return (
     <div className="flex flex-col items-center p-8 min-h-screen bg-gray-50">
-      <h1 className="text-2xl font-bold mb-6">Editar Empresa</h1>
+      <h1 className="text-2xl font-bold mb-6">Editar Licença</h1>
 
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg space-y-4 bg-white p-6 rounded-lg shadow-md"
       >
         <div className="flex flex-col">
-          <label className="font-medium mb-1">Razão Social</label>
+          <label className="font-medium mb-1">Número</label>
           <input
             type="text"
-            name="razaoSocial"
-            value={form.razaoSocial}
+            name="numero"
+            value={form.numero}
             onChange={handleInputChange}
             className="border p-2 rounded w-full"
             maxLength={255}
@@ -139,37 +118,11 @@ export default function EditCompany() {
         </div>
 
         <div className="flex flex-col">
-          <label className="font-medium mb-1">CNPJ</label>
+          <label className="font-medium mb-1">Órgão Ambiental</label>
           <input
             type="text"
-            name="cnpj"
-            value={form.cnpj}
-            onChange={handleCnpjChange}
-            className="border p-2 rounded w-full"
-            maxLength={18}
-            required
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">CEP</label>
-          <input
-            type="text"
-            name="cep"
-            value={form.cep}
-            onChange={handleInputChange}
-            className="border p-2 rounded w-full"
-            maxLength={8}
-            required
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Cidade</label>
-          <input
-            type="text"
-            name="cidade"
-            value={form.cidade}
+            name="orgaoAmbiental"
+            value={form.orgaoAmbiental}
             onChange={handleInputChange}
             className="border p-2 rounded w-full"
             maxLength={255}
@@ -178,40 +131,27 @@ export default function EditCompany() {
         </div>
 
         <div className="flex flex-col">
-          <label className="font-medium mb-1">Estado</label>
+          <label className="font-medium mb-1">Emissão</label>
           <input
-            type="text"
-            name="estado"
-            value={form.estado}
+            type="date"
+            name="emissao"
+            value={form.emissao}
             onChange={handleInputChange}
             className="border p-2 rounded w-full"
-            maxLength={255}
             required
           />
         </div>
 
         <div className="flex flex-col">
-          <label className="font-medium mb-1">Bairro</label>
+          <label className="font-medium mb-1">Validade</label>
           <input
-            type="text"
-            name="bairro"
-            value={form.bairro}
+            type="date"
+            name="validade"
+            value={form.validade}
             onChange={handleInputChange}
             className="border p-2 rounded w-full"
-            maxLength={255}
+            min={form.emissao}
             required
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Complemento</label>
-          <input
-            type="text"
-            name="complemento"
-            value={form.complemento}
-            onChange={handleInputChange}
-            className="border p-2 rounded w-full"
-            maxLength={255}
           />
         </div>
 
@@ -220,7 +160,7 @@ export default function EditCompany() {
             type="submit"
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
-            Atualizar Empresa
+            Atualizar Licença
           </button>
           <button
             type="button"
@@ -238,7 +178,7 @@ export default function EditCompany() {
       >
         <div className="p-4">
           <p className="text-lg mb-4 text-center">
-            Confirma a atualização desta empresa?
+            Confirma a atualização desta licença?
           </p>
           <div className="flex justify-center gap-3">
             <button

@@ -34,7 +34,7 @@ model Licenca {
   id             String   @id @default(uuid())
   empresa        Empresa  @relation(fields: [empresaId], references: [id], onDelete: Cascade)
   empresaId      String   @map("empresa_id")
-  numero         String   @unique
+  numero         String   @unique @db.VarChar(255)
   orgaoAmbiental String   @map("orgao_ambiental") @db.VarChar(255)
   emissao        DateTime @db.Date
   validade       DateTime @db.Date

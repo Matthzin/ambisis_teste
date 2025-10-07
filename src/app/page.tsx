@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "../components/Modal";
 
-interface Licenca {
+interface License {
   id: string;
   numero: string;
   orgaoAmbiental: string;
@@ -12,7 +12,7 @@ interface Licenca {
   validade: string;
 }
 
-interface Empresa {
+interface Company {
   id: string;
   razaoSocial: string;
   cnpj: string;
@@ -21,12 +21,12 @@ interface Empresa {
   estado: string;
   bairro: string;
   complemento?: string;
-  licencas?: Licenca[];
+  licencas?: License[];
 }
 
 export default function Home() {
   const router = useRouter();
-  const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,15 +43,15 @@ export default function Home() {
         const data = await res.json();
 
         if (Array.isArray(data)) {
-          setEmpresas(data);
+          setCompanies(data);
         } else if (data && Array.isArray(data.empresas)) {
-          setEmpresas(data.empresas);
+          setCompanies(data.empresas);
         } else {
-          setEmpresas([]);
+          setCompanies([]);
         }
       } catch (error) {
         console.error("Erro ao carregar empresas:", error);
-        setEmpresas([]);
+        setCompanies([]);
       } finally {
         setLoading(false);
       }
@@ -75,13 +75,13 @@ export default function Home() {
     try {
       if (itemToDelete.type === "empresa") {
         await fetch(`/api/companies/${itemToDelete.id}`, { method: "DELETE" });
-        setEmpresas((prev) => prev.filter((e) => e.id !== itemToDelete.id));
+        setCompanies((prev) => prev.filter((c) => c.id !== itemToDelete.id));
       } else {
         await fetch(`/api/licenses/${itemToDelete.id}`, { method: "DELETE" });
-        setEmpresas((prev) =>
-          prev.map((empresa) => ({
-            ...empresa,
-            licencas: empresa.licencas?.filter((l) => l.id !== itemToDelete.id),
+        setCompanies((prev) =>
+          prev.map((company) => ({
+            ...company,
+            licencas: company.licencas?.filter((l) => l.id !== itemToDelete.id),
           }))
         );
       }
@@ -109,9 +109,9 @@ export default function Home() {
 
       {loading ? (
         <p>Carregando empresas...</p>
-      ) : Array.isArray(empresas) && empresas.length > 0 ? (
+      ) : Array.isArray(companies) && companies.length > 0 ? (
         <div className="w-full max-w-3xl flex flex-col gap-4">
-          {empresas.map((empresa) => {
+          {companies.map((empresa) => {
             const isExpanded = expandedId === empresa.id;
 
             return (
@@ -191,7 +191,9 @@ export default function Home() {
                           Licenças Ambientais:
                         </p>
                         <button
-                          onClick={() => router.push("/license/new")}
+                          onClick={() =>
+                            router.push(`/license/new?empresaId=${empresa.id}`)
+                          }
                           className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
                         >
                           Nova Licença
@@ -273,15 +275,15 @@ export default function Home() {
       )}
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-        <div className="p-4 text-center">
-          <p className="mb-4 text-gray-800">
+        <div className="p-4">
+          <p className="text-lg text-center">
             Tem certeza que deseja excluir esta{" "}
             <strong>
               {itemToDelete?.type === "empresa" ? "empresa" : "licença"}
             </strong>
             ?
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center mt-4 gap-4">
             <button
               onClick={handleDelete}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

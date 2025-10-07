@@ -8,7 +8,10 @@ export async function GET() {
     return NextResponse.json({ message: "No licenses found" }, { status: 404 });
   }
 
-  return NextResponse.json(licenses, { status: 200 });
+  return new NextResponse(JSON.stringify(licenses, null, 2), {
+    headers: { "Content-Type": "application/json" },
+    status: 200,
+  });
 }
 
 export async function POST(request: NextRequest) {
