@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   const companies = await prisma.empresa.findMany({
@@ -19,13 +19,21 @@ export async function GET() {
   });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const body = await request.json();
   const { razaoSocial, cnpj, cep, cidade, estado, bairro, complemento } = body;
 
   if (!razaoSocial || !cnpj || !cep || !cidade || !estado || !bairro) {
     return NextResponse.json(
       { message: "Missing required fields" },
+      { status: 400 }
+    );
+  }
+
+  const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+  if (!cnpjRegex.test(cnpj)) {
+    return NextResponse.json(
+      { message: "CNPJ is not valid" },
       { status: 400 }
     );
   }
@@ -40,6 +48,7 @@ export async function POST(request: Request) {
       bairro,
       complemento: complemento || null,
     },
+    include: { licencas: true },
   });
 
   return new NextResponse(JSON.stringify(newCompany, null, 2), {
