@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<Para
   });
 
   if (!license) {
-    return NextResponse.json({ message: "License not found" }, { status: 404 });
+    return NextResponse.json({ message: "Licença não encontrada" }, { status: 404 });
   }
 
   return NextResponse.json(license, { status: 200 });
@@ -27,7 +27,7 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<P
   });
 
   if (!existingLicense) {
-    return NextResponse.json({ message: "License not found" }, { status: 404 });
+    return NextResponse.json({ message: "Licença não encontrada" }, { status: 404 });
   }
 
   const license = await prisma.licenca.delete({
@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<Param
   });
   
   if (!existingLicense) {
-    return NextResponse.json({ message: "License not found" }, { status: 404 });
+    return NextResponse.json({ message: "Licença não encontrada" }, { status: 404 });
   }
   
   const data = await request.json();
@@ -56,7 +56,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<Param
 
   if (!numero || !orgaoAmbiental || !emissao || !validade) {
     return NextResponse.json(
-      { message: "Missing required fields" },
+      { message: "Preencha todos os campos obrigatórios" },
       { status: 400 }
     );
   }

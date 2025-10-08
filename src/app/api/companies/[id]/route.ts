@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<Para
   });
 
   if (!company) {
-    return NextResponse.json({ message: "Company not found" }, { status: 404 });
+    return NextResponse.json({ message: "Empresa não encontrada" }, { status: 404 });
   }
 
   return new NextResponse(JSON.stringify(company, null, 2), {
@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<Para
   });
 }
 
-export async function DELETE(_request: Request, context: { params: Promise<Params> }) {
+export async function DELETE(_request: NextRequest, context: { params: Promise<Params> }) {
   const { id } = await context.params;
 
   const existingCompany = await prisma.empresa.findUnique({
@@ -33,7 +33,7 @@ export async function DELETE(_request: Request, context: { params: Promise<Param
   });
 
   if (!existingCompany) {
-    return NextResponse.json({ message: "Company not found" }, { status: 404 });
+    return NextResponse.json({ message: "Empresa não encontrada" }, { status: 404 });
   }
 
   const company = await prisma.empresa.delete({
@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<Param
   });
 
   if (!existingCompany) {
-    return NextResponse.json({ message: "Company not found" }, { status: 404 });
+    return NextResponse.json({ message: "Empresa não encontrada" }, { status: 404 });
   }
 
   const data = await request.json();
@@ -62,7 +62,15 @@ export async function PUT(request: NextRequest, context: { params: Promise<Param
 
   if (!razaoSocial || !cnpj || !cep || !cidade || !estado || !bairro) {
     return NextResponse.json(
-      { message: "Missing required fields" },
+      { message: "Preencha todos os campos obrigatórios" },
+      { status: 400 }
+    );
+  }
+
+  const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+  if (!cnpjRegex.test(cnpj)) {
+    return NextResponse.json(
+      { message: "CNPJ não é válido" },
       { status: 400 }
     );
   }

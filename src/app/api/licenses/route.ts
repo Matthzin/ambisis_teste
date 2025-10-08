@@ -5,7 +5,7 @@ export async function GET() {
   const licenses = await prisma.licenca.findMany();
 
   if (licenses.length === 0) {
-    return NextResponse.json({ message: "No licenses found" }, { status: 404 });
+    return NextResponse.json({ message: "Nenhuma licença encontrada" }, { status: 404 });
   }
 
   return new NextResponse(JSON.stringify(licenses, null, 2), {
@@ -23,12 +23,23 @@ export async function POST(request: NextRequest) {
   });
 
   if (!company) {
-    return NextResponse.json({ message: "Company not found" }, { status: 404 });
+    return NextResponse.json({ message: "Empresa não encontrada" }, { status: 404 });
   }
 
   if (!empresaId || !numero || !orgaoAmbiental || !emissao || !validade) {
     return NextResponse.json(
-      { message: "Missing required fields" },
+      { message: "Preencha todos os campos obrigatórios" },
+      { status: 400 }
+    );
+  }
+
+  const existingNumber = await prisma.licenca.findUnique({
+    where: { numero },
+  });
+
+  if (existingNumber) {
+    return NextResponse.json(
+      { message: "Número da licença já existe" },
       { status: 400 }
     );
   }

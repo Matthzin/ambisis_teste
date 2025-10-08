@@ -8,7 +8,7 @@ export async function GET() {
 
   if (companies.length === 0) {
     return NextResponse.json(
-      { message: "No companies found" },
+      { message: "Nenhuma empresa encontrada" },
       { status: 404 }
     );
   }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   if (!razaoSocial || !cnpj || !cep || !cidade || !estado || !bairro) {
     return NextResponse.json(
-      { message: "Missing required fields" },
+      { message: "Preencha todos os campos obrigatórios" },
       { status: 400 }
     );
   }
@@ -33,7 +33,18 @@ export async function POST(request: NextRequest) {
   const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
   if (!cnpjRegex.test(cnpj)) {
     return NextResponse.json(
-      { message: "CNPJ is not valid" },
+      { message: "CNPJ não é válido" },
+      { status: 400 }
+    );
+  }
+
+  const existingCNPJ = await prisma.empresa.findUnique({
+    where: { cnpj },
+  });
+
+  if (existingCNPJ) {
+    return NextResponse.json(
+      { message: "CNPJ já existe" },
       { status: 400 }
     );
   }

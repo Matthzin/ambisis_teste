@@ -203,7 +203,17 @@ export default function NewCompany() {
       </Modal>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-        <p className="text-lg text-center">{message}</p>
+        <div className="p-4">
+          <p className="text-lg text-center">{message}</p>
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => setModalOpen(false)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

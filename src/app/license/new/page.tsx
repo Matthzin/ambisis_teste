@@ -116,9 +116,9 @@ export default function NewLicense() {
             className="border p-2 rounded w-full"
             required
           >
-            {companies.map((empresa) => (
-              <option key={empresa.id} value={empresa.id}>
-                {empresa.cnpj} | {empresa.razaoSocial}
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.cnpj} | {company.razaoSocial}
               </option>
             ))}
           </select>
