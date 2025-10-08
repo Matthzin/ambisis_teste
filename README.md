@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Teste técnico realizado para a Ambisis
 
-## Getting Started
+## Requisitos
 
-First, run the development server:
+Node 18.18 ou superior<br>
+MySQL Workbench<br>
+MySQL Server<br>
+
+## Instalação e Execução
+
+Clone este projeto:
+
+```
+git clone https://github.com/Matthzin/ambisis_teste.git
+```
+
+Após, entre na pasta do projeto e execute:
+
+```bash
+npm install
+```
+
+Na raíz do projeto, crie um arquivo chamado `.env`<br>
+Dentro deste arquivo, inclua:
+
+```bash
+DATABASE_URL="mysql://usuário:senha@localhost:3306/mydb"
+```
+
+- Troque `usuário` e `senha` pelo seu próprio usuário e senha respectivamente. Essa conexão irá gerar um novo esquema no seu MySQL chamado `mydb`. Você pode alterar este nome no final da URL para o nome que quiser que seja gerado seu esquema;<br>
+
+- Caso você tiver outra porta definida para `localhost` no MySQL Server, troque pela correspondente. A porta padrão é `3306`;<br><br>
+
+Execute a migração do Prisma para gerar o banco no MySQL:
+
+```bash
+npx prisma migrate dev
+```
+
+- Esse comando gera uma migração no MySQL. É possível visualizá-la no MySQL Workbench e executar comandos SQL como INSERT, DELETE ou UPDATE;
+- 
+
+Execute a geração do Prisma Client
+
+```bash
+npx prisma generate
+```
+
+Por fim, execute o projeto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador para começar a utilizar o projeto;
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
